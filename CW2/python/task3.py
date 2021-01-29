@@ -4,9 +4,9 @@ import numpy as np
 from common import *
 
 # Note: the sample image is naturally grayscale
-# I = rgb_to_gray(im2double(plt.imread('../data/calibration.jpg')))
+I = rgb_to_gray(im2double(plt.imread('../data/calibration.jpg')))
 # I = rgb_to_gray(im2double(plt.imread('../data/test1.jpg')))
-I = rgb_to_gray(im2double(plt.imread('../data/test3.png')))
+# I = rgb_to_gray(im2double(plt.imread('../data/test2.png')))
 
 ###########################################
 #
@@ -18,7 +18,8 @@ sigma_I = 3
 alpha = 0.06
 
 
-I_diff_smooth = cv2.blur(I, (sigma_D,sigma_D))
+# I_diff_smooth = cv2.blur(I, (sigma_D,sigma_D))
+I_diff_smooth = gaussian(I, sigma_D)
 I_dx, I_dy, _ = derivative_of_gaussian(I, sigma_D)
 
 I_dxx = I_dx**2
