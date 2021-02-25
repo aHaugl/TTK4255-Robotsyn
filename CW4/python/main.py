@@ -8,8 +8,8 @@ XY          = np.loadtxt('../data/XY.txt').T
 n_total     = XY.shape[1] # Total number of markers (= 24)
 
 fig = plt.figure(figsize=plt.figaspect(0.35))
-
-# for image_number in range(23): # Use this to run on all images
+XY = np.vstack((XY, np.ones(n_total)))
+#for image_number in range(23): # Use this to run on all images
 for image_number in [4]: # Use this to run on a single image
 
     # Load data
@@ -27,20 +27,34 @@ for image_number in [4]: # Use this to run on a single image
 
     # Tip: Helper arrays with 0 and/or 1 appended can be useful if
     # you want to replace for-loops with array/matrix operations.
-    # uv1 = np.vstack((uv, np.ones(n)))
-    # XY1 = np.vstack((XY, np.ones(n_total)))
+    uv = np.vstack((uv, np.ones(n)))
+    
     # XY01 = np.vstack((XY, np.zeros(n_total), np.ones(n_total)))
 
-    xy = np.zeros((2, n))              # TASK: Compute calibrated image coordinates
-    H = estimate_H(xy, XY[:, valid])   # TASK: Implement this function
-    uv_from_H = np.zeros((2, n_total)) # TASK: Compute predicted pixel coordinates using H
+    
+    xy = np.linalg.inv(K)@uv
+    xy = xy/xy[2,:]
+    
+    # TASK: Implement this function
+    H = estimate_H(xy.T, XY[:, valid].T)   
+    uv_hat = (K @ H @ XY)
+    
+    # TASK: Compute predicted pixel coordinates using H
+    uv_from_H = (uv_hat/uv_hat[2,:]).T 
+    
+    # TASK: Implement this function
+    T1,T2 = decompose_H(H) 
 
-    T1,T2 = decompose_H(H) # TASK: Implement this function
-
-    T = T1 # TASK: Choose solution (try both T1 and T2 for Task 3.1, but choose automatically for Task 3.2)
-
+  
+    # TASK: Choose solution (try both T1 and T2 for Task 3.1, but choose automatically for Task 3.2)
+    T = determine_pose(T1, T2) 
+    error = reprojection_error(uv, uv_from_H.T)
+    print("Max error: ", np.max(error))
+    print("Min error: ", np.min(error))
+    print("Avg error: ", np.average(error))
+    
     # The figure should be saved in the data directory as out0000.png, etc.
     # NB! generate_figure expects the predicted pixel coordinates as 'uv_from_H'.
     plt.clf()
-    generate_figure(fig, image_number, K, T, uv, uv_from_H, XY)
+    generate_figure(fig, image_number, K, T, uv, uv_from_H.T, XY)
     plt.savefig('../data/out%04d.png' % image_number)
