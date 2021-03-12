@@ -55,7 +55,7 @@ def levenberg_marquardt(func, func_diff, p0, max_iterations=100,
 
         norm_eq = jac.T@jac
 
-        mu = (mu if mu is not None else 1e-6 * np.amax(jac**2))
+        mu = (mu if mu is not None else 1e-3 * np.amax(jac**2))
         
 
         delta = np.linalg.solve(norm_eq + mu*np.eye(3), -jac.T@res_p)
@@ -65,9 +65,10 @@ def levenberg_marquardt(func, func_diff, p0, max_iterations=100,
             mu /= 3
         else:
             mu *= 2
-        print("Delta for this iteration")    
-        print(delta)  
-        #Print mu for every iteration.
+        # # Print delta for every iteration.
+        # print("Delta for this iteration")    
+        # print(delta)  
+        # #Print mu for every iteration.
         # print("Mu this iteration")
         # print(mu)
 
@@ -76,8 +77,9 @@ def levenberg_marquardt(func, func_diff, p0, max_iterations=100,
         if cost_logger is not None:
             cost_logger.append([iteration, squaresum(res_p), stepsize])
            
-        if stepsize <= 1e-9:
+        if stepsize <= 1e-3:
+            print("Break condition met")
             break
     # print("delta")
     # print(delta_list)
-    return p  # Placeholder, remove me!
+    return p,  delta  # Placeholder, remove me!

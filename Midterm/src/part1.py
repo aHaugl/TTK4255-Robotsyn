@@ -7,8 +7,8 @@ from generate_quanser_summary import generate_quanser_summary
 detections = np.loadtxt('../data/detections.txt')
 
 # The script runs up to, but not including, this image.
-run_until = 1  # Task 1.4,
-# run_until = 86 # Task 1.5
+# run_until = 1  # Task 1.4,
+run_until = 87 # Task 1.5
 # run_until = detections.shape[0]  # Task 1.7
 
 # Change this if you want the Quanser visualization for a different image.
@@ -24,6 +24,7 @@ p = np.array([0.0, 0.0, 0.0]) # For Task 1.5
 all_residuals = []
 trajectory = np.zeros((run_until, 3))
 cost_logger =  []
+delta = []
 for image_number in range(run_until):
     weights = detections[image_number, ::3]
     uv = np.vstack((detections[image_number, 1::3],
@@ -49,7 +50,7 @@ for image_number in range(run_until):
     # Implement gauss_newton (see methods.py).
     # p = gauss_newton(residualsfun,diff, p)
     
-    p = levenberg_marquardt(residualsfun, diff, p, cost_logger=cost_logger)
+    p, delta = levenberg_marquardt(residualsfun, diff, p, cost_logger=cost_logger)
     # Note:
     # The plotting code assumes that p is a 1D array of length 3
     # and r is a 1D array of length 2n (n=7), where the first
@@ -63,13 +64,10 @@ for image_number in range(run_until):
     if image_number == visualize_number:
         print('Residuals on image number', image_number, r)
         quanser.draw(uv, weights, image_number)
-
+# %% 
 # Note:
 # The generated figures will be saved in your working
 # directory under the filenames out_*.png.
-print("Iterations, squaresum(res_p), stepsize")
-print(cost_logger)
-# print("Estimated trajectory:")
-# print(trajectory)
 generate_quanser_summary(trajectory, all_residuals, detections)
+
 plt.show()
